@@ -1,39 +1,53 @@
-// src/App.jsx
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import SearchBar from "./components/SearchBar";
 import TrackList from "./components/TrackList";
 import Player from "./components/Player";
-// import { searchTracks } from "./api/deezer";
-// import { usePlayer } from "./hooks/usePlayer";
+import { usePlayer } from "./hooks/usePlayer";
+import { searchTracks } from "./api/deezer";
+
+// Dummy track data
+const dummyTracks = [
+  { id: 1, title: "Track One", preview: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: 2, title: "Track Two", preview: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: 3, title: "Track Three", preview: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+];
 
 export default function App() {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const player = usePlayer();
 
-  // Safe player stub (replace with your real usePlayer later)
-  const player = {
-    load: () => {},
-    play: () => {},
-  };
+const onSearch = async (q) => {
+  if (!q) return;
+  setLoading(true);
+  try {
+    const results = await searchTracks(q);
+    setTracks(results);
+  } catch (err) {
+    console.error("Search failed:", err);
+    alert("Search failed (check network or proxy).");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Safe onSearch stub (replace with real API later)
-  const onSearch = async (q) => {
-    console.log("Search triggered for:", q);
-    alert("Search is disabled in safe mode.");
-  };
 
   const handlePlay = (track) => {
-    console.log("Play clicked:", track?.title || "N/A");
+    if (!track) return;
     player.load(track);
     player.play();
+    console.log("Playing:", track.title);
   };
 
   const handleAdd = (track) => {
-    console.log("Add clicked:", track?.title || "N/A");
+    if (!track) return;
     const list = JSON.parse(localStorage.getItem("beatlab_playlist") || "[]");
-    if (!list.find((t) => t.id === track?.id)) {
+    if (!list.find((t) => t.id === track.id)) {
       localStorage.setItem("beatlab_playlist", JSON.stringify([...list, track]));
+      console.log("Added:", track.title);
+    } else {
+      console.log("Already in playlist:", track.title);
     }
   };
 
@@ -44,6 +58,8 @@ export default function App() {
         <SearchBar onSearch={onSearch} />
         {loading ? (
           <div className="p-4">Loading...</div>
+        ) : tracks.length === 0 ? (
+          <div className="p-4">No tracks yet — try searching</div>
         ) : (
           <TrackList tracks={tracks} onPlay={handlePlay} onAdd={handleAdd} />
         )}
