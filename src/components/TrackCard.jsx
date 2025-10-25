@@ -1,17 +1,25 @@
-// src/components/TrackCard.jsx
+import React from "react";
+
 export default function TrackCard({ track, onPlay, onAdd }) {
-  // small card; we'll use album.cover_small when available
-  const cover = track?.album?.cover_small || "https://via.placeholder.com/64";
   return (
-    <div className="flex gap-3 items-center p-3 border rounded bg-white">
-      <img src={cover} alt={track.title} className="w-16 h-16 rounded object-cover" />
-      <div className="flex-1">
-        <div className="font-semibold">{track.title}</div>
-        <div className="text-sm text-gray-500">{track.artist?.name}</div>
+    <div className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mb-3 hover:bg-gray-700 transition">
+      <div>
+        <p className="font-bold">{track.title}</p>
+        <p className="text-gray-400">{track.artist} — {track.album}</p>
       </div>
-      <div className="flex flex-col gap-2">
-        <button onClick={() => onPlay(track)} className="px-2 py-1 border rounded">Play</button>
-        <button onClick={() => onAdd(track)} className="px-2 py-1 bg-indigo-500 text-white rounded">+</button>
+      <div className="flex gap-2">
+        <button
+          className="bg-green-500 px-3 py-1 rounded hover:bg-green-400"
+          onClick={() => onPlay(track)}
+        >
+          Play
+        </button>
+        <button
+          className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-400"
+          onClick={() => onAdd(track)}
+        >
+          Add
+        </button>
       </div>
     </div>
   );
