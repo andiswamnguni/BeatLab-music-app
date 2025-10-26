@@ -1,28 +1,32 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(query);
+    if (query.trim()) {
+      onSearch(query);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex mb-4">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search tracks..."
-        className="flex-1 p-2 rounded-l-lg bg-gray-700 text-white focus:outline-none"
-      />
-      <button
-        type="submit"
-        className="bg-green-500 px-4 rounded-r-lg hover:bg-green-400"
-      >
-        Search
-      </button>
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search songs, artists, albums..."
+          className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <button
+          type="submit"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
+        >
+          Search
+        </button>
+      </div>
     </form>
   );
 }

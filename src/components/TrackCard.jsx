@@ -1,49 +1,40 @@
-// src/components/TrackCard.jsx
-import React from "react";
+import { useState } from "react";
+import { useMusic } from "../store/MusicContext";
 
-export default function TrackCard({ track, onPlay, onAdd, onRemove, isPlaying }) {
+export default function TrackCard({ track, onPlay }) {
+  const { addFavorite } = useMusic();
+
+  const handleAddFavorite = () => {
+    addFavorite(track);
+  };
+
   return (
-    <div
-      className={`flex flex-col items-center bg-gray-800 p-3 rounded-md hover:bg-gray-700 transition ${
-        isPlaying ? "bg-blue-900" : ""
-      }`}
-    >
-      <img
-        src={track.album?.cover_medium || track.album?.cover_small || "/default-cover.png"}
-        alt={track.title}
-        className={`w-32 h-32 mb-2 rounded ${
-          isPlaying ? "animate-spin-slow" : ""
-        }`}
-      />
-      <p className="font-semibold text-center">{track.title}</p>
-      <p className="text-sm text-gray-400 text-center">{track.artist?.name}</p>
-
-      <div className="flex space-x-2 mt-2">
-        {onPlay && (
-          <button
-            onClick={() => onPlay(track)}
-            className="px-3 py-1 bg-blue-500 rounded hover:bg-blue-600 text-sm"
-          >
-            Play
-          </button>
-        )}
-        {onAdd && (
-          <button
-            onClick={() => onAdd(track)}
-            className="px-3 py-1 bg-green-500 rounded hover:bg-green-600 text-sm"
-          >
-            Add
-          </button>
-        )}
-        {onRemove && (
-          <button
-            onClick={() => onRemove(track)}
-            className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 text-sm"
-          >
-            Remove
-          </button>
-        )}
+    <div className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:bg-gray-700 transition-colors">
+      <div className="relative">
+        <img 
+          src={track.album.cover_medium || track.album.cover_small} 
+          alt={track.album.title} 
+          className="w-full aspect-square rounded-lg mb-3"
+        />
+        <button
+          onClick={handleAddFavorite}
+          className="absolute top-2 right-2 p-1 bg-black bg-opacity-50 rounded-full text-white hover:text-red-400"
+        >
+          ♡
+        </button>
       </div>
+      
+      <div className="min-h-16">
+        <h3 className="font-semibold text-white text-sm truncate">{track.title}</h3>
+        <p className="text-gray-300 text-xs truncate">{track.artist.name}</p>
+      </div>
+      
+      <button
+        onClick={() => onPlay(track)}
+        className="w-full mt-2 px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+      >
+        Play
+      </button>
     </div>
   );
 }

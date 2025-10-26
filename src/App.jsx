@@ -1,121 +1,93 @@
-// src/App.jsx
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SearchBar from "./components/SearchBar";
-import TrackList from "./components/TrackList";
+import Home from "./components/Home";
 import Player from "./components/Player";
+import PlaylistManager from "./components/PlaylistManager";
+import DJControlPanel from "./components/DJControlPanel";
+import Favorites from "./components/Favorites";
+import BottomNav from "./components/BottomNav";
+import { searchTracks } from "./api/deezer";
 import { usePlayer } from "./hooks/usePlayer";
-import { searchTracks, getTrendingTracks } from "./api/deezer";
-import DJConsole from "./components/DJConsole";
+import { MusicProvider } from "./store/MusicContext";
 
-export default function App() {
+function AppContent() {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [activeTab, setActiveTab] = useState("home"); // "home", "search", "dj"
   const player = usePlayer();
 
-  // fetch trending tracks for Home tab
-  const fetchTrending = async () => {
-    setLoading(true);
-    try {
-      const results = await getTrendingTracks();
-      setTracks(results);
-    } catch (err) {
-      console.error("Failed to fetch trending tracks:", err);
-      setTracks([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === "home") {
-      fetchTrending();
-    }
-  }, [activeTab]);
-
-  // search Deezer tracks
   const onSearch = async (q) => {
-    if (!q) return;
+    if (!q.trim()) {
+      setTracks([]);
+      return;
+    }
+    
     setLoading(true);
     try {
       const results = await searchTracks(q);
-      setTracks(results);
-      setActiveTab("search");
+      setTracks(results || []);
     } catch (err) {
-      console.error("Search failed:", err);
-      alert("Search failed");
+      console.error("Search failed", err);
+      alert("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handlePlay = (track) => {
-    if (!track) return;
-    setCurrentTrack(track);
     player.load(track);
     player.play();
   };
 
-  const handleAdd = (track) => {
-    if (!track) return;
-    const list = JSON.parse(localStorage.getItem("beatlab_playlist") || "[]");
-    if (!list.find((t) => t.id === track.id)) {
-      localStorage.setItem("beatlab_playlist", JSON.stringify([...list, track]));
-      console.log("Added:", track.title);
-    } else {
-      console.log("Already in playlist:", track.title);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white pb-24">
-      {/* Navbar with tab navigation */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <main className="max-w-4xl mx-auto px-4 mt-8">
-        {/* HOME tab */}
-        {activeTab === "home" && (
-          <>
-            {loading ? (
-              <div className="p-4 text-center">Loading trending tracks...</div>
-            ) : tracks.length === 0 ? (
-              <div className="p-4 text-center text-gray-400">No trending tracks</div>
-            ) : (
-              <TrackList tracks={tracks} onPlay={handlePlay} onAdd={handleAdd} />
-            )}
-          </>
-        )}
-
-        {/* SEARCH tab */}
-        {activeTab === "search" && (
-          <>
-            <SearchBar onSearch={onSearch} />
-            {loading ? (
-              <div className="p-4 text-center">Loading...</div>
-            ) : tracks.length === 0 ? (
-              <div className="p-4 text-center text-gray-400">
-                No tracks yet — try searching
-              </div>
-            ) : (
-              <TrackList tracks={tracks} onPlay={handlePlay} onAdd={handleAdd} />
-            )}
-          </>
-        )}
-
-        {/* DJ Console tab */}
-        {activeTab === "dj" && (
-          <DJConsole
-            playlist={tracks}
-            currentTrack={currentTrack}
-            setCurrentTrack={setCurrentTrack}
-          />
-        )}
-      </main>
-
-      {/* Global Player */}
-      <Player player={player} track={currentTrack} />
+    <div className="min-h-screen bg-gray-900 pb-32">
+      <Navbar />
+      <div className="max-w-md mx-auto bg-gray-900 min-h-screen">
+        <div className="p-4">
+          <SearchBar onSearch={onSearch} />
+        </div>
+        
+        <main className="px-4">
+          <Routes>
+            <Route path="/" element={
+              <>
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-gray-300">Searching for music...</p>
+                  </div>
+                ) : tracks.length > 0 ? (
+                  <Home tracks={tracks} onPlay={handlePlay} />
+                ) : (
+                  <div className="text-center py-16">
+                    <h3 className="text-xl font-semibold text-white mb-2">Welcome to BeatLab</h3>
+                    <p className="text-gray-400">Search for your favorite music to get started!</p>
+                  </div>
+                )}
+              </>
+            } />
+            <Route path="/playlists" element={<PlaylistManager />} />
+            <Route path="/dj" element={<DJControlPanel />} />
+            <Route path="/favorites" element={<Favorites />} />
+          </Routes>
+        </main>
+      </div>
+      
+      <Player player={player} />
+      <BottomNav />
     </div>
   );
 }
+
+function App() {
+  return (
+    <Router>
+      <MusicProvider>
+        <AppContent />
+      </MusicProvider>
+    </Router>
+  );
+}
+
+export default App;

@@ -1,12 +1,13 @@
-import React from "react"; // ✅ add this line
+import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { PlaylistProvider } from "./context/PlaylistContext";
+import { MusicProvider } from "./store/MusicContext";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <PlaylistProvider>
+    <MusicProvider>
       <App />
-    </PlaylistProvider>
+    </MusicProvider>
   </React.StrictMode>
 );
