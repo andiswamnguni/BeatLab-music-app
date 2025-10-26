@@ -13,7 +13,6 @@ export function useMusic() {
 export function MusicProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
   const [playlists, setPlaylists] = useState([]);
-  const [recentSearches, setRecentSearches] = useState([]);
 
   const addFavorite = (track) => {
     setFavorites(prev => {
@@ -62,13 +61,6 @@ export function MusicProvider({ children }) {
     setPlaylists(prev => prev.filter(p => p.id !== playlistId));
   };
 
-  const addRecentSearch = (query) => {
-    setRecentSearches(prev => {
-      const filtered = prev.filter(item => item !== query);
-      return [query, ...filtered].slice(0, 5);
-    });
-  };
-
   const value = {
     favorites,
     addFavorite,
@@ -77,9 +69,7 @@ export function MusicProvider({ children }) {
     createPlaylist,
     addToPlaylist,
     removeFromPlaylist,
-    deletePlaylist,
-    recentSearches,
-    addRecentSearch
+    deletePlaylist
   };
 
   return (

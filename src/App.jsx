@@ -7,6 +7,7 @@ import Player from "./components/Player";
 import PlaylistManager from "./components/PlaylistManager";
 import DJControlPanel from "./components/DJControlPanel";
 import Favorites from "./components/Favorites";
+import SongRecognizer from "./components/SongRecognizer";
 import BottomNav from "./components/BottomNav";
 import { searchTracks } from "./api/deezer";
 import { usePlayer } from "./hooks/usePlayer";
@@ -43,7 +44,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gray-900 pb-32">
       <Navbar />
-      <div className="max-w-md mx-auto bg-gray-900 min-h-screen">
+      {/* Add padding-top to account for fixed navbar height */}
+      <div className="pt-16 max-w-md mx-auto bg-gray-900 min-h-screen">
         <div className="p-4">
           <SearchBar onSearch={onSearch} />
         </div>
@@ -67,6 +69,7 @@ function AppContent() {
                 )}
               </>
             } />
+            <Route path="/song-id" element={<SongRecognizer />} />
             <Route path="/playlists" element={<PlaylistManager />} />
             <Route path="/dj" element={<DJControlPanel />} />
             <Route path="/favorites" element={<Favorites />} />
